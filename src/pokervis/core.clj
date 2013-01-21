@@ -25,7 +25,7 @@
   (let [drawncard (nth adeck (rand-int (count adeck)))]
     {:card drawncard, :deck (remove #{drawncard} adeck)}))
 
-; int deck {nil} -> ((card ...), deck)
+; int deck {nil} -> {:drawncards (card ...), :remainingdeck deck}
 (defn drawmultihelper [remaining adeck accresults]
   "Used by drawmulti; do not call on its own. Currently not tail call optimized."
   (if (zero? remaining)
@@ -36,7 +36,7 @@
                        {:drawncards (cons (:card result) (:drawncards accresults))
                              :remainingdeck (:deck result)}))))
 
-; int deck -> ((card ...), deck)
+; int deck -> {:drawncards (card ...), :remainingdeck deck}
 (defn drawmulti [numdrawn adeck]
   "Draws a few cards from a deck. Returns drawn cards and remaining deck."
     (drawmultihelper numdrawn adeck {}))
