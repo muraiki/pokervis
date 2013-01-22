@@ -2,9 +2,21 @@
 
 (def suits [:clubs :diamonds :hearts :spades])
 
-(def cards [:2, :3, :4, :5, :6, :7, :8, :9, :10, :jack, :queen, :king, :ace])
+(def ranks {:2 2,
+            :3 3,
+            :4 4,
+            :5 5,
+            :6 6,
+            :7 7,
+            :8 8,
+            :9 9,
+            :10 10,
+            :jack 11,
+            :queen 12,
+            :king 13,
+            :ace 14})
 
-(def deck (for [s suits, c cards] {:suit s, :rank c}))
+(def deck (for [s suits, c (keys ranks)] {:suit s, :rank c}))
 
 (def rankings {
                10 :royalflush,
@@ -18,6 +30,11 @@
                2 :onepair,
                1 :highcard
                })
+
+; List of lists of rank values that qualify as straights
+(def straight (merge
+                (partition 5 1 (sort (vals ranks)))
+                (list 2 3 4 5 14))) ; Ace low
 
 ; deck -> {:card card, :deck deck}
 (defn drawrand [adeck]
@@ -61,3 +78,17 @@
         (.contains thecards {:suit suit, :rank :jack})
         (.contains thecards {:suit suit, :rank :10}))))
 
+; (cards ...) -> boolean
+(defn flush? [thecards]
+  "Returns whether cards are a flush or not; doesn't check for >5 cards"
+  (samesuit? thecards))
+
+; (cards ...) -> boolean
+(defn straight? [thecards]
+  "Returns whether cards are a straight or not; doesn't check for >5 cards"
+    (.contains straight (sort (map ranks (map :rank thecards)))))
+
+; (cards ...) -> boolean
+(defn straightflush? [thecards]
+  "Returns whether cards are a straight flush or not; doesn't check for >5 cards"
+  (and (flush? thecards) (straight? thecards)))
