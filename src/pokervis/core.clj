@@ -16,6 +16,20 @@
             :king 13,
             :ace 14})
 
+(def ranks-inv {2 :2,
+                3 :3,
+                4 :4,
+                5 :5,
+                6 :6,
+                7 :7,
+                8 :8,
+                9 :9,
+                10 :10,
+                11 :jack,
+                12 :queen,
+                13 :king,
+                14 :ace})
+
 (def deck (for [s suits, c (keys ranks)] {:suit s, :rank c}))
 
 (def rankings {
@@ -43,6 +57,7 @@
     {:card drawncard, :deck (remove #{drawncard} adeck)}))
 
 ; int deck {nil} -> {:drawncards (card ...), :remainingdeck deck}
+; TODO: Probably would be faster to just draw n cards at once instead of using recursion
 (defn drawmultihelper [remaining adeck accresults]
   "Used by drawmulti; do not call on its own. Currently not tail call optimized."
   (if (zero? remaining)
@@ -92,3 +107,25 @@
 (defn straightflush? [thecards]
   "Returns whether cards are a straight flush or not; doesn't check for >5 cards"
   (and (flush? thecards) (straight? thecards)))
+
+; (cards ...) -> rank
+(defn highcard [thecards]
+  "Returns the rank of the highest valued card."
+  (ranks-inv
+    (last
+      (sort (map ranks (map :rank thecards))))))
+
+; (cards ...) -> int -> ({:rank rank, :high rank}...) or () if no matches
+(defn kind [thecards howmany]
+  ;TODO: Doesn't currently work with two pair
+  "Checks if a hand can meet the criteria for n-of-a-kind. Can return multiple satisfying ranks."
+  (let [distribution (group-by :rank thecards)]
+    (remove false?
+            (for [k (keys distribution)]
+              (if (= howmany (count (k distribution)))
+                {:rank k
+                 :high (highcard (remove #(= (:rank %) k) thecards))}
+                false)))))    
+
+
+
