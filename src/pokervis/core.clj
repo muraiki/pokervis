@@ -83,7 +83,7 @@
 ; (cards ...) -> {:high card, :cards (cards ...)} or false
 ; called aflush because flush is in clojure.core
 (defn aflush [thecards]
-  "Returns the high card and carsd if a flush, else false"
+  "Returns the high card and cards if a flush, else false"
   (let [suit (:suit (first thecards))]
     (if (every? #(= suit (:suit %)) thecards)
       {:high (highcard thecards), :cards thecards}
@@ -106,20 +106,17 @@
 ; (cards ...) -> {:high rank, :cards (cards ...)} or false
 (defn straight [thecards]
   "Returns the high card and cards if a straight, else false; doesn't check for >5 cards"
-  (let [sortedranks (sort (map ranks (map :rank thecards)))]
+  (let [sortedranks (sort (map ranks (map :rank thecards)))] ; maps are to convert card ranks to int values
     (cond
       (= sortedranks (list 2 3 4 5 14))
         {:high :5, :cards thecards}
-      (.contains straightlist (sort (map ranks (map :rank thecards))))
+      (.contains straightlist sortedranks)
         {:high (highcard thecards), :cards thecards}
       :else false)))
                  
 ; (cards ...) -> {:high rank, :cards (cards ...)} or false
 (defn straightflush [thecards]
   "Returns high card and cards if a straight flush, else false; doesn't check for >5 cards"
-;  (if (and (aflush thecards) (straight thecards))
-;    {:high (highcard thecards), :cards thecards}
-;    false))
   (let [checkstraight (straight thecards)
         checkflush (aflush thecards)]
     (if (and checkstraight checkflush)
@@ -138,5 +135,29 @@
                  :cards thecards}
                 false)))))    
 
-; (defn fullhouse
+; (cards ...) -> ({:high rank} {:full rank}) or ()
+; This code is a bit ugly :(
+(defn genfullhouselist [thecards]
+  "Helper function for fullhouse"
+  (let [distribution (group-by :rank thecards)]
+    ; The for only executes if the values of the distribution of cards can be divided into two groups.
+    ; If they can, then we have a full house; otherwise, we don't have one and so return ()
+    (for [k (keys distribution) :when (= 2 (count (vals distribution)))]
+      {(if (= 3 (count (vals (k distribution)))) ; If the key is present 3 times, it is the high rank
+          :high
+          :full) ; Otherwise it's only present twice, so it is the full rank
+            k} ; set the value of the generated map to the key
+      )))
 
+; (cards ...) -> {:high rank, :full rank} or false
+(defn fullhouse [thecards]
+  "Returns the high rank and full rank if a full house, else false; doesn't check for > 5 cards"
+  (let [genlist (genfullhouselist thecards)]
+    (if (= () genlist)
+      false
+      ; The for in genfullhouselist gives us back the data as a list of two maps.
+      ; This will pull the maps out of the list and merge them into one.
+      (merge (first genlist) (second genlist)))))
+  
+  
+  

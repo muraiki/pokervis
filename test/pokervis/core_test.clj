@@ -214,4 +214,22 @@
                             {:rank :4, :suit :diamonds}
                             {:rank :1, :suit :clubs}) 2))))
 
+(deftest fullhouse-true
+         (testing "Testing fullhouse ace high full of 5s"
+                  (is (= {:high :ace, :full :5}
+                         (fullhouse (list {:rank :ace, :suit :spades}
+                                          {:rank :ace, :suit :hearts}
+                                          {:rank :ace, :suit :diamonds}
+                                          {:rank :5, :suit :clubs}
+                                          {:rank :5, :suit :spades}))))))
+
+(deftest fullhouse-false
+         (testing "Testing fullhouse false"
+                  (is (= false
+                         (fullhouse (list {:rank :ace, :suit :spades}
+                                          {:rank :ace, :suit :hearts}
+                                          {:rank :ace, :suit :diamonds}
+                                          {:rank :3, :suit :clubs}
+                                          {:rank :5, :suit :spades}))))))
+
 ; TODO: write a test to verify drawing x cards yields a deck of 52 - x count
