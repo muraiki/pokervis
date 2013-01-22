@@ -122,8 +122,31 @@
                       {:rank :king, :suit :diamonds}
                       {:rank :king, :suit :clubs}) 4))))
 
-;(deftest two-pair
-;         (testing "Testing two pair")
-;         (is (= (list {:
+(deftest two-pair
+         (testing "Testing two pair")
+         (is (= (list {:rank :king, :high :ace} {:rank :3, :high :ace})
+                (kind (list {:rank :king, :suit :spades}
+                      {:rank :king, :suit :hearts}
+                      {:rank :3, :suit :diamonds}
+                      {:rank :3, :suit :diamonds}
+                      {:rank :ace, :suit :clubs}) 2))))
+
+(deftest two-pair-diffhigh
+         (testing "Testing two pair with different high cards for each pair")
+         (is (= (list {:rank :king, :high :3} {:rank :3, :high :king})
+                (kind (list {:rank :king, :suit :spades}
+                            {:rank :king, :suit :hearts}
+                            {:rank :3, :suit :diamonds}
+                            {:rank :3, :suit :diamonds}
+                            {:rank :1, :suit :clubs}) 2))))
+
+(deftest two-pair-fail
+         (testing "Testing two pair with no matching pair")
+         (is (= ()
+                (kind (list {:rank :king, :suit :spades}
+                            {:rank :10, :suit :hearts}
+                            {:rank :3, :suit :diamonds}
+                            {:rank :4, :suit :diamonds}
+                            {:rank :1, :suit :clubs}) 2))))
 
 ; TODO: write a test to verify drawing x cards yields a deck of 52 - x count
