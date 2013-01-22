@@ -80,19 +80,20 @@
     (last
       (sort (map ranks (map :rank thecards))))))
 
-; (cards ...) -> suit or false
-(defn samesuit [thecards]
-  "Returns whether all cards passed in are the same suit or not."
+; (cards ...) -> {:high card, :cards (cards ...)} or false
+; called aflush because flush is in clojure.core
+(defn aflush [thecards]
+  "Returns the high card and carsd if a flush, else false"
   (let [suit (:suit (first thecards))]
     (if (every? #(= suit (:suit %)) thecards)
-      (highcard thecards)
+      {:high (highcard thecards), :cards thecards}
       false)))
 
 ; (cards ...) -> boolean
 (defn royalflush? [thecards]
   "Returns whether a royal flush can be built from the cards passed in. Currently doesn't check to see if input is > 5 cards."
   (let [suit (:suit (first thecards))]
-   (and (samesuit thecards)
+   (and (aflush thecards)
         ; TODO: Using java.util.Collection#contains()
         ; Won't work in clojurescript
         ; Try variant of (some #(= 1 %) (1 2 3))
@@ -102,30 +103,30 @@
         (.contains thecards {:suit suit, :rank :jack})
         (.contains thecards {:suit suit, :rank :10}))))
 
-; (cards ...) -> rank or false
-; called aflush because flush is in clojure.core
-(defn aflush [thecards]
-  "Returns whether cards are a flush or not; doesn't check for >5 cards"
-  (samesuit thecards))
-
-; (cards ...) -> rank or false
+; (cards ...) -> {:high rank, :cards (cards ...)} or false
 (defn straight [thecards]
-  "Returns whether cards are a straight or not; doesn't check for >5 cards"
+  "Returns the high card and cards if a straight, else false; doesn't check for >5 cards"
   (let [sortedranks (sort (map ranks (map :rank thecards)))]
     (cond
       (= sortedranks (list 2 3 4 5 14))
-        :5
+        {:high :5, :cards thecards}
       (.contains straightlist (sort (map ranks (map :rank thecards))))
-        (highcard thecards)
+        {:high (highcard thecards), :cards thecards}
       :else false)))
                  
+; (cards ...) -> {:high rank, :cards (cards ...)} or false
+(defn straightflush [thecards]
+  "Returns high card and cards if a straight flush, else false; doesn't check for >5 cards"
+;  (if (and (aflush thecards) (straight thecards))
+;    {:high (highcard thecards), :cards thecards}
+;    false))
+  (let [checkstraight (straight thecards)
+        checkflush (aflush thecards)]
+    (if (and checkstraight checkflush)
+      {:high (:high checkstraight), :cards thecards}
+      false)))
 
-; (cards ...) -> boolean
-(defn straightflush? [thecards]
-  "Returns whether cards are a straight flush or not; doesn't check for >5 cards"
-  (and (aflush thecards) (straight thecards)))
-
-; (cards ...) -> int -> ({:rank rank, :high rank}...) or () if no matches
+; (cards ...) -> int -> ({:rank rank, :high rank, :cards (cards ...)}...) or () if no matches
 (defn kind [thecards howmany]
   "Checks if a hand can meet the criteria for n-of-a-kind. Can return multiple satisfying ranks."
   (let [distribution (group-by :rank thecards)]
@@ -133,8 +134,9 @@
             (for [k (keys distribution)]
               (if (= howmany (count (k distribution)))
                 {:rank k
-                 :high (highcard (remove #(= (:rank %) k) thecards))}
+                 :high (highcard (remove #(= (:rank %) k) thecards))
+                 :cards thecards}
                 false)))))    
 
-
+; (defn fullhouse
 
