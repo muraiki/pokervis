@@ -2,17 +2,20 @@
   (:use clojure.test
         pokervis.core))
 
-(deftest samesuit?-test
-         (testing "Testing samesuit?"
+(deftest samesuit-false
+         (testing "Testing samesuit false"
                   (is
-                    (and
                       (= false
-                         (samesuit? (list {:suit :spades, :rank :ace},
-                                          {:suit :hearts, :rank :ace})))
-                      (= true
-                         (samesuit? (list {:suit :spades, :rank :ace},
+                         (samesuit (list {:suit :spades, :rank :ace},
+                                          {:suit :hearts, :rank :ace}))))))
+         
+(deftest samesuit-true
+         (testing "Testing samesuit true ace high"
+                  (is
+                      (= :ace
+                         (samesuit (list {:suit :spades, :rank :ace},
                                           {:suit :spades, :rank :2},
-                                          {:suit :spades, :rank :5})))))))
+                                          {:suit :spades, :rank :5}))))))
 
 (deftest royalflush?-test
          (testing "Testing royalflush? for royal flush true")
@@ -23,7 +26,7 @@
                                    {:suit :spades, :rank :jack},
                                    {:suit :spades, :rank :10})))))
 
-(deftest royalflush?-testfalse1
+(deftest royalflush?-false1
          (testing "Testing royalflush? for royal flush false; not same suit")
          (is (= false
                 (royalflush? (list {:suit :spades, :rank :ace},
@@ -32,50 +35,77 @@
                                   {:suit :spades, :rank :jack},
                                   {:suit :spades, :rank :10})))))
 
-(deftest royalflush?-testfalse2
+(deftest royalflush?-false2
          (testing "Testing royalflush? for royal flush false; wrong ranks")
          (is (= false
                 (royalflush? (list {:suit :spades, :rank :ace},
-                                  {:suit :hearts, :rank :king},
-                                  {:suit :spades, :rank :queen},
-                                  {:suit :spades, :rank :jack},
-                                  {:suit :spades, :rank :5})))))
+                                   {:suit :hearts, :rank :king},
+                                   {:suit :spades, :rank :queen},
+                                   {:suit :spades, :rank :jack},
+                                   {:suit :spades, :rank :5})))))
 
-(deftest straight?-testacelow
-         (testing "Testing straight? for ace low")
-         (is (= true
-                (straight? (list {:suit :spades, :rank :ace}
-                                 {:suit :spades, :rank :2}
-                                 {:suit :spades, :rank :4}
-                                 {:suit :spades, :rank :3}
-                                 {:suit :spades, :rank :5})))))
+(deftest aflush-true
+         (testing "Testing aflush for flush")
+         (is (= :ace
+                (aflush (list {:suit :spades, :rank :ace}
+                              {:suit :spades, :rank :2}
+                              {:suit :spades, :rank :10}
+                              {:suit :spades, :rank :king}
+                              {:suit :spades, :rank :5})))))
 
-(deftest straight?-testfalse
-         (testing "Testing straight? for invalid straight")
+(deftest aflush-true
+         (testing "Testing aflush for not flush")
          (is (= false
-                (straight? (list {:suit :spades, :rank :king}
+                (aflush (list {:suit :spades, :rank :ace}
+                              {:suit :spades, :rank :2}
+                              {:suit :diamonds, :rank :10}
+                              {:suit :spades, :rank :king}
+                              {:suit :spades, :rank :5})))))
+
+(deftest straight-testacelow
+         (testing "Testing straight for ace low")
+         (is (= :5
+                (straight (list {:suit :spades, :rank :ace}
                                  {:suit :spades, :rank :2}
                                  {:suit :spades, :rank :4}
                                  {:suit :spades, :rank :3}
                                  {:suit :spades, :rank :5})))))
 
-(deftest straight?-testacehigh
-         (testing "Testing straight? for ace high")
-         (is (= true
-                (straight? (list {:suit :spades, :rank :10}
-                                 {:suit :spades, :rank :ace}
-                                 {:suit :spades, :rank :king}
-                                 {:suit :spades, :rank :jack}
-                                 {:suit :spades, :rank :queen})))))
+(deftest straight-false
+         (testing "Testing straight for invalid straight")
+         (is (= false
+                (straight (list {:suit :spades, :rank :king}
+                                {:suit :spades, :rank :2}
+                                {:suit :spades, :rank :4}
+                                {:suit :spades, :rank :3}
+                                {:suit :spades, :rank :5})))))
 
-(deftest straightflush?-true
-         (testing "Testing straightflush? for valid straight flush")
-         (is (= true
+(deftest straight-acehigh
+         (testing "Testing straight for ace high")
+         (is (= :ace
+                (straight (list {:suit :spades, :rank :10}
+                                {:suit :spades, :rank :ace}
+                                {:suit :spades, :rank :king}
+                                {:suit :spades, :rank :jack}
+                                {:suit :spades, :rank :queen})))))
+
+(deftest straightflush?-acelow
+         (testing "Testing straightflush? for valid straight flush ace low")
+         (is (= :5
                 (straightflush? (list {:suit :spades, :rank :ace}
                                       {:suit :spades, :rank :2}
                                       {:suit :spades, :rank :4}
                                       {:suit :spades, :rank :3}
                                       {:suit :spades, :rank :5})))))
+
+(deftest straightflush?-acehigh
+         (testing "Testing straightflush? for valid straight flush ace high")
+         (is (= :ace
+                (straightflush? (list {:suit :spades, :rank :ace}
+                                      {:suit :spades, :rank :king}
+                                      {:suit :spades, :rank :queen}
+                                      {:suit :spades, :rank :10}
+                                      {:suit :spades, :rank :jack})))))
 
 (deftest straightflush?-false
          (testing "Testing straightflush? for invalid straight flush")

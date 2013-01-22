@@ -46,7 +46,7 @@
                })
 
 ; List of lists of rank values that qualify as straights
-(def straight (merge
+(def straightlist (merge
                 (partition 5 1 (sort (vals ranks)))
                 (list 2 3 4 5 14))) ; Ace low
 
@@ -73,17 +73,26 @@
   "Draws a few cards from a deck. Returns drawn cards and remaining deck."
     (drawmultihelper numdrawn adeck {}))
 
-; (cards ...) -> boolean
-(defn samesuit? [thecards]
+; (cards ...) -> rank
+(defn highcard [thecards]
+  "Returns the rank of the highest valued card."
+  (ranks-inv
+    (last
+      (sort (map ranks (map :rank thecards))))))
+
+; (cards ...) -> suit or false
+(defn samesuit [thecards]
   "Returns whether all cards passed in are the same suit or not."
   (let [suit (:suit (first thecards))]
-    (every? #(= suit (:suit %)) thecards)))
+    (if (every? #(= suit (:suit %)) thecards)
+      (highcard thecards)
+      false)))
 
 ; (cards ...) -> boolean
 (defn royalflush? [thecards]
   "Returns whether a royal flush can be built from the cards passed in. Currently doesn't check to see if input is > 5 cards."
   (let [suit (:suit (first thecards))]
-   (and (samesuit? thecards)
+   (and (samesuit thecards)
         ; TODO: Using java.util.Collection#contains()
         ; Won't work in clojurescript
         ; Try variant of (some #(= 1 %) (1 2 3))
@@ -93,27 +102,28 @@
         (.contains thecards {:suit suit, :rank :jack})
         (.contains thecards {:suit suit, :rank :10}))))
 
-; (cards ...) -> boolean
-(defn flush? [thecards]
+; (cards ...) -> rank or false
+; called aflush because flush is in clojure.core
+(defn aflush [thecards]
   "Returns whether cards are a flush or not; doesn't check for >5 cards"
-  (samesuit? thecards))
+  (samesuit thecards))
 
-; (cards ...) -> boolean
-(defn straight? [thecards]
+; (cards ...) -> rank or false
+(defn straight [thecards]
   "Returns whether cards are a straight or not; doesn't check for >5 cards"
-    (.contains straight (sort (map ranks (map :rank thecards)))))
+  (let [sortedranks (sort (map ranks (map :rank thecards)))]
+    (cond
+      (= sortedranks (list 2 3 4 5 14))
+        :5
+      (.contains straightlist (sort (map ranks (map :rank thecards))))
+        (highcard thecards)
+      :else false)))
+                 
 
 ; (cards ...) -> boolean
 (defn straightflush? [thecards]
   "Returns whether cards are a straight flush or not; doesn't check for >5 cards"
-  (and (flush? thecards) (straight? thecards)))
-
-; (cards ...) -> rank
-(defn highcard [thecards]
-  "Returns the rank of the highest valued card."
-  (ranks-inv
-    (last
-      (sort (map ranks (map :rank thecards))))))
+  (and (aflush thecards) (straight thecards)))
 
 ; (cards ...) -> int -> ({:rank rank, :high rank}...) or () if no matches
 (defn kind [thecards howmany]
