@@ -117,7 +117,6 @@
 
 ; (cards ...) -> int -> ({:rank rank, :high rank}...) or () if no matches
 (defn kind [thecards howmany]
-  ;TODO: Doesn't currently work with two pair
   "Checks if a hand can meet the criteria for n-of-a-kind. Can return multiple satisfying ranks."
   (let [distribution (group-by :rank thecards)]
     (remove false?
