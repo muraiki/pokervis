@@ -1,3 +1,5 @@
 .lein-failures
 .git
 .lein-repl-history
+.settings
+bin
