@@ -48,7 +48,7 @@
 ; ((suit ranks...) ...) -> ({:suit :ranks} ...)
 (defn genhand [args]
   "Sends a vector of shorthand cards to gencards.
-   Example: (hand [[:spades :2 :3 :4] [:hearts :king :queen]])
+   Example: (genhand [[:spades :2 :3 :4] [:hearts :king :queen]])
    Returns: ({:suit :spades, :rank :2} {:suit :spades, :rank :3} {:suit :spades, :rank :4}
    {:suit :hearts, :rank :king} {:suit :hearts, :rank :queen})"
   (mapcat gencards args))
@@ -60,7 +60,7 @@
 
 ; deck -> {:card card, :deck deck}
 (defn drawrand [adeck]
-  "Draws a random card from a deck, returns a list containing the drawn card
+  "Draws a random card from a deck, returns a map containing the drawn card
   and a deck minus that card"
   (let [drawncard (nth adeck (rand-int (count adeck)))]
     {:card drawncard, :deck (remove #{drawncard} adeck)}))
