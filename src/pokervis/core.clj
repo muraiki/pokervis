@@ -17,19 +17,7 @@
             :king 13,
             :ace 14})
 
-(def ranks-inv {2 :2,
-                3 :3,
-                4 :4,
-                5 :5,
-                6 :6,
-                7 :7,
-                8 :8,
-                9 :9,
-                10 :10,
-                11 :jack,
-                12 :queen,
-                13 :king,
-                14 :ace})
+(def ranks-inv (into {} (for [[key val] ranks] [val key])))
 
 (def deck (for [s suits, c (keys ranks)] {:suit s, :rank c}))
 
@@ -185,3 +173,4 @@
 ; (cards ...) -> {:best rankings-key, :result (cards ...)}
 (defn bestallhands [thecards]
   (first (sort-by #(:rankings (:best %)) (besthandcombo thecards))))
+
