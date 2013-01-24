@@ -3,3 +3,4 @@
 .lein-repl-history
 .settings
 bin
+.DS_Store
