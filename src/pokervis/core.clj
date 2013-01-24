@@ -41,21 +41,24 @@
 
 ; deck -> {:card card, :deck deck}
 (defn drawrand [adeck]
-  "Draws a random card from a deck, returns a list containing the drawn card and a deck minus that card"
+  "Draws a random card from a deck, returns a list containing the drawn card
+  and a deck minus that card"
   (let [drawncard (nth adeck (rand-int (count adeck)))]
     {:card drawncard, :deck (remove #{drawncard} adeck)}))
 
 ; int deck {nil} -> {:drawncards (card ...), :remainingdeck deck}
-; TODO: Probably would be faster to just draw n cards at once instead of using recursion
+; TODO: Probably faster to just draw n cards at once instead of using recursion
 (defn drawmultihelper [remaining adeck accresults]
-  "Used by drawmulti; do not call on its own. Currently not tail call optimized."
+  "Used by drawmulti; do not call on its own."
+  "Currently not tail call optimized."
   (if (zero? remaining)
     accresults
     (let [result (drawrand adeck)]
       (drawmultihelper (dec remaining)
                        (:deck result)
-                       {:drawncards (cons (:card result) (:drawncards accresults))
-                             :remainingdeck (:deck result)}))))
+                       {:drawncards
+                        (cons (:card result) (:drawncards accresults))
+                        :remainingdeck (:deck result)}))))
 
 ; int deck -> {:drawncards (card ...), :remainingdeck deck}
 (defn drawmulti [numdrawn adeck]
@@ -80,7 +83,8 @@
 
 ; (cards ...) -> boolean
 (defn royalflush? [thecards]
-  "Returns whether a royal flush can be built from the cards passed in. Currently doesn't check to see if input is > 5 cards."
+  "Returns whether a royal flush can be built from the cards passed in.
+  Currently doesn't check to see if input is > 5 cards."
   (let [suit (:suit (first thecards))]
    (and (aflush thecards)
         ; TODO: Using java.util.Collection#contains()
@@ -94,8 +98,10 @@
 
 ; (cards ...) -> {:high rank, :cards (cards ...)} or false
 (defn straight [thecards]
-  "Returns the high card and cards if a straight, else false; doesn't check for >5 cards"
-  (let [sortedranks (sort (map ranks (map :rank thecards)))] ; maps are to convert card ranks to int values
+  "Returns the high card and cards if a straight, else false;
+  doesn't check for >5 cards"
+  ; maps are to convert card ranks to int values:
+  (let [sortedranks (sort (map ranks (map :rank thecards)))]
     (cond
       (= sortedranks (list 2 3 4 5 14))
         {:high :5, :cards thecards}
@@ -105,16 +111,19 @@
                  
 ; (cards ...) -> {:high rank, :cards (cards ...)} or false
 (defn straightflush [thecards]
-  "Returns high card and cards if a straight flush, else false; doesn't check for >5 cards"
+  "Returns high card and cards if a straight flush, else false;
+  doesn't check for >5 cards"
   (let [checkstraight (straight thecards)
         checkflush (aflush thecards)]
     (if (and checkstraight checkflush)
       {:high (:high checkstraight), :cards thecards}
       false)))
 
-; (cards ...) -> int -> ({:rank rank, :high rank, :cards (cards ...)}...) or () if no matches
+; (cards ...) -> int -> ({:rank rank, :high rank, :cards (cards ...)}...)
+; or () if no matches
 (defn kind [thecards howmany]
-  "Checks if a hand can meet the criteria for n-of-a-kind. Can return multiple satisfying ranks."
+  "Checks if a hand can meet the criteria for n-of-a-kind.
+  Can return multiple satisfying ranks."
   (let [distribution (group-by :rank thecards)]
     (remove false?
             (for [k (keys distribution)]
@@ -129,10 +138,12 @@
 (defn genfullhouselist [thecards]
   "Helper function for fullhouse"
   (let [distribution (group-by :rank thecards)]
-    ; The for only executes if the values of the distribution of cards can be divided into two groups.
-    ; If they can, then we have a full house; otherwise, we don't have one and so return ()
+    ; The for only executes if the values of the distribution of cards can be
+    ; divided into two groups.  If they can, then we have a full house;
+    ; otherwise, we don't have one and so return ()
     (for [k (keys distribution) :when (= 2 (count (vals distribution)))]
-      {(if (= 3 (count (vals (k distribution)))) ; If the key is present 3 times, it is the high rank
+      ; If the key is present 3 times, it is the high rank:
+      {(if (= 3 (count (vals (k distribution))))
           :high
           :full) ; Otherwise it's only present twice, so it is the full rank
             k} ; set the value of the generated map to the key
@@ -140,12 +151,13 @@
 
 ; (cards ...) -> {:high rank, :full rank} or false
 (defn fullhouse [thecards]
-  "Returns the high rank and full rank if a full house, else false; doesn't check for > 5 cards"
+  "Returns the high rank and full rank if a full house, else false;
+  doesn't check for > 5 cards"
   (let [genlist (genfullhouselist thecards)]
     (if (= () genlist)
       false
-      ; The for in genfullhouselist gives us back the data as a list of two maps.
-      ; This will pull the maps out of the list and merge them into one.
+      ; The for in genfullhouselist gives us back the data as a list of two
+      ; maps.  This will pull the maps out of the list and merge them into one.
       (merge (first genlist) (second genlist)))))
 
 ; (cards ...) -> {:best rankings-key, :result (cards ...)}
