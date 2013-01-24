@@ -39,6 +39,25 @@
                 (partition 5 1 (sort (vals ranks)))
                 (list 2 3 4 5 14))) ; Ace low
 
+; (suit ranks ...) -> ({:suit :rank} ...)
+(defn gencards [args]
+  "Turns something like (:hearts :3 :4) into ({:suit :hearts :rank :3} {:suit :hearts :rank :4})"
+  (for [eachrank (rest args)]
+    {:suit (first args) :rank eachrank}))
+
+; ((suit ranks...) ...) -> ({:suit :ranks} ...)
+(defn genhand [args]
+  "Sends a vector of shorthand cards to gencards.
+   Example: (hand [[:spades :2 :3 :4] [:hearts :king :queen]])
+   Returns: ({:suit :spades, :rank :2} {:suit :spades, :rank :3} {:suit :spades, :rank :4}
+   {:suit :hearts, :rank :king} {:suit :hearts, :rank :queen})"
+  (mapcat gencards args))
+
+; Macro to make defining hands a little less tedious by saving one pair of brackets
+; Usage: (hand [:spades :2 :3 :4] [:hearts :king :queen])
+(defmacro hand [& args]
+  `(genhand [~@args]))
+
 ; deck -> {:card card, :deck deck}
 (defn drawrand [adeck]
   "Draws a random card from a deck, returns a list containing the drawn card
