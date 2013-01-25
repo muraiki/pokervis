@@ -65,24 +65,42 @@
   (let [drawncard (nth adeck (rand-int (count adeck)))]
     {:card drawncard, :deck (remove #{drawncard} adeck)}))
 
-; int deck {nil} -> {:drawncards (card ...), :remainingdeck deck}
-; TODO: Probably faster to just draw n cards at once instead of using recursion
-(defn drawmultihelper [remaining adeck accresults]
-  "Used by drawmulti; do not call on its own."
-  "Currently not tail call optimized."
-  (if (zero? remaining)
-    accresults
-    (let [result (drawrand adeck)]
-      (drawmultihelper (dec remaining)
-                       (:deck result)
-                       {:drawncards
-                        (cons (:card result) (:drawncards accresults))
-                        :remainingdeck (:deck result)}))))
+; suit rank hand -> boolean
+(defn cardin? [asuit arank ahand]
+  "Checks if a card is in a hand."
+  (not= nil ; some returns nil if the item isn't found, but we want false
+        (some #(= {:suit asuit :rank arank} %)
+              ahand)))
+
+; (cards ...) deck -> deck
+(defn removefromdeck [thecards adeck]
+  "Returns a deck with the specified cards having been removed."
+  ; Remove wants a set, so we put the vector thecards into a set
+  (remove (into #{} thecards) adeck))
+
+
+; int int -> (int ...)
+(defn nonrepeatingints [howmany maxval]
+  "Generate a vector of non-repeating integers up to a certain value."
+  (if (> howmany maxval) nil  ; make sure we have enough vals for desired # ints
+   ; Generate a lazy series of non-repeating integers up to the size of maxval
+   ; Take the set of that to remove dups; if it's not large enough try again.
+    (let [a (take howmany (repeatedly #(rand-int maxval)))]
+                 (if (= (count (set a)) howmany) a
+                   (nonrepeatingints howmany maxval)))))
+                 
+
+; int deck -> (cards ...)
+(defn drawfromdeck [numdrawn adeck]
+  "Helper function for drawmulti"
+  (for [eachcard (nonrepeatingints numdrawn (dec (count adeck)))]
+    (nth adeck eachcard)))
 
 ; int deck -> {:drawncards (card ...), :remainingdeck deck}
 (defn drawmulti [numdrawn adeck]
-  "Draws a few cards from a deck. Returns drawn cards and remaining deck."
-    (drawmultihelper numdrawn adeck {}))
+  (let [drawn (drawfromdeck numdrawn adeck)]
+  {:drawncards drawn
+   :remainingdeck (removefromdeck drawn adeck)}))
 
 ; (cards ...) -> rank
 (defn highcard [thecards]
@@ -106,25 +124,22 @@
   Currently doesn't check to see if input is > 5 cards."
   (let [suit (:suit (first thecards))]
    (and (aflush thecards)
-        ; TODO: Using java.util.Collection#contains()
-        ; Won't work in clojurescript
-        ; Try variant of (some #(= 1 %) (1 2 3))
-        (.contains thecards {:suit suit, :rank :ace})
-        (.contains thecards {:suit suit, :rank :king})
-        (.contains thecards {:suit suit, :rank :queen})
-        (.contains thecards {:suit suit, :rank :jack})
-        (.contains thecards {:suit suit, :rank :10}))))
+        (cardin? suit :ace thecards)
+        (cardin? suit :jack thecards)
+        (cardin? suit :queen thecards)
+        (cardin? suit :king thecards)
+        (cardin? suit :10 thecards))))
 
 ; (cards ...) -> {:high rank, :cards (cards ...)} or false
 (defn straight [thecards]
   "Returns the high card and cards if a straight, else false;
   doesn't check for >5 cards"
-  ; maps are to convert card ranks to int values:
+  ; the maps are to convert card ranks to int values:
   (let [sortedranks (sort (map ranks (map :rank thecards)))]
     (cond
       (= sortedranks (list 2 3 4 5 14))
         {:high :5, :cards thecards}
-      (.contains straightlist sortedranks)
+      (not= nil (some #(= sortedranks %) straightlist))
         {:high (highcard thecards), :cards thecards}
       :else false)))
                  
