@@ -22,7 +22,9 @@
 (deftest royalflush?-false1
          (testing "Testing royalflush? for royal flush false; not same suit")
          (is (= false
-                (royalflush? (hand [:spades :ace :king :queen :jack] [:diamonds :10])))))
+                (royalflush? (hand
+                               [:spades :ace :king :queen :jack]
+                               [:diamonds :10])))))
 
 (deftest royalflush?-false2
          (testing "Testing royalflush? for royal flush false; wrong ranks")
@@ -41,8 +43,10 @@
 
 (deftest straight-acehigh
          (testing "Testing straight for ace high")
-         (is (= {:high :ace, :cards (hand [:spades :10 :ace :king :jack] [:hearts :queen])}
-                 (straight (hand [:spades :10 :ace :king :jack] [:hearts :queen])))))
+         (is (= {:high :ace, :cards (hand [:spades :10 :ace :king :jack]
+                                          [:hearts :queen])}
+                 (straight (hand [:spades :10 :ace :king :jack]
+                                 [:hearts :queen])))))
 
 (deftest straightflush-acelow
          (testing "Testing straightflush for valid straight flush ace low")
@@ -51,7 +55,8 @@
 
 (deftest straightflush-acehigh
          (testing "Testing straightflush for valid straight flush ace high")
-         (is (= {:high :ace, :cards (hand [:spades :ace :king :queen :10 :jack])}
+         (is (= {:high :ace, :cards (hand
+                                      [:spades :ace :king :queen :10 :jack])}
                 (straightflush (hand [:spades :ace :king :queen :10 :jack])))))
 
 (deftest straightflush-false
@@ -62,21 +67,28 @@
 (deftest highcard-ace
          (testing "Testing highcard with ace")
          (is (= :ace
-                (highcard (hand [:spades :2 :5] [:hearts :ace] [:diamonds :10 :jack])))))
+                (highcard (hand [:spades :2 :5]
+                                [:hearts :ace]
+                                [:diamonds :10 :jack])))))
 
 (deftest kind-2
          (testing "Testing 2 of a kind")
          (is (= (list {:rank :king, :high :ace, :cards
-                       (hand [:hearts :king] [:diamonds :king] [:clubs :ace :3 :4])})
-                (kind (hand [:hearts :king] [:diamonds :king] [:clubs :ace :3 :4]) 2))))
+                       (hand [:hearts :king]
+                             [:diamonds :king]
+                             [:clubs :ace :3 :4])})
+                (kind (hand [:hearts :king]
+                            [:diamonds :king]
+                            [:clubs :ace :3 :4]) 2))))
 
 (deftest kind-3
          (testing "Testing 3 of a kind")
-         (is (= (list {:rank :king, :high :ace, :cards (list {:rank :king, :suit :spades}
-                                                             {:rank :king, :suit :hearts}
-                                                             {:rank :3, :suit :diamonds}
-                                                             {:rank :king, :suit :diamonds}
-                                                             {:rank :ace, :suit :clubs})})
+         (is (= (list {:rank :king, :high :ace,
+                       :cards (list {:rank :king, :suit :spades}
+                                    {:rank :king, :suit :hearts}
+                                    {:rank :3, :suit :diamonds}
+                                    {:rank :king, :suit :diamonds}
+                                    {:rank :ace, :suit :clubs})})
                 (kind (list {:rank :king, :suit :spades}
                             {:rank :king, :suit :hearts}
                             {:rank :3, :suit :diamonds}
@@ -85,11 +97,12 @@
 
 (deftest kind-4
          (testing "Testing 4 of a kind")
-         (is (= (list {:rank :king, :high :3, :cards (list {:rank :king, :suit :spades}
-                                                           {:rank :king, :suit :hearts}
-                                                           {:rank :3, :suit :diamonds}
-                                                           {:rank :king, :suit :diamonds}
-                                                           {:rank :king, :suit :clubs})})
+         (is (= (list {:rank :king, :high :3,
+                       :cards (list {:rank :king, :suit :spades}
+                                    {:rank :king, :suit :hearts}
+                                    {:rank :3, :suit :diamonds}
+                                    {:rank :king, :suit :diamonds}
+                                    {:rank :king, :suit :clubs})})
                 (kind (list {:rank :king, :suit :spades}
                             {:rank :king, :suit :hearts}
                             {:rank :3, :suit :diamonds}
@@ -98,16 +111,18 @@
 
 (deftest two-pair
          (testing "Testing two pair")
-         (is (= (list {:rank :king, :high :ace, :cards (list {:rank :king, :suit :spades}
-                                                             {:rank :king, :suit :hearts}
-                                                             {:rank :3, :suit :diamonds}
-                                                             {:rank :3, :suit :diamonds}
-                                                             {:rank :ace, :suit :clubs})}
-                      {:rank :3, :high :ace, :cards (list {:rank :king, :suit :spades}
-                                                          {:rank :king, :suit :hearts}
-                                                          {:rank :3, :suit :diamonds}
-                                                          {:rank :3, :suit :diamonds}
-                                                          {:rank :ace, :suit :clubs})})
+         (is (= (list {:rank :king, :high :ace,
+                       :cards (list {:rank :king, :suit :spades}
+                                    {:rank :king, :suit :hearts}
+                                    {:rank :3, :suit :diamonds}
+                                    {:rank :3, :suit :diamonds}
+                                    {:rank :ace, :suit :clubs})}
+                      {:rank :3, :high :ace,
+                       :cards (list {:rank :king, :suit :spades}
+                                    {:rank :king, :suit :hearts}
+                                    {:rank :3, :suit :diamonds}
+                                    {:rank :3, :suit :diamonds}
+                                    {:rank :ace, :suit :clubs})})
                 (kind (list {:rank :king, :suit :spades}
                             {:rank :king, :suit :hearts}
                             {:rank :3, :suit :diamonds}
@@ -116,16 +131,18 @@
 
 (deftest two-pair-diffhigh
          (testing "Testing two pair with different high cards for each pair")
-         (is (= (list {:rank :king, :high :3, :cards (list {:rank :king, :suit :spades}
-                                                           {:rank :king, :suit :hearts}
-                                                           {:rank :3, :suit :diamonds}
-                                                           {:rank :3, :suit :diamonds}
-                                                           {:rank :1, :suit :clubs})}
-                      {:rank :3, :high :king, :cards (list {:rank :king, :suit :spades}
-                                                           {:rank :king, :suit :hearts}
-                                                           {:rank :3, :suit :diamonds}
-                                                           {:rank :3, :suit :diamonds}
-                                                           {:rank :1, :suit :clubs})})
+         (is (= (list {:rank :king, :high :3,
+                       :cards (list {:rank :king, :suit :spades}
+                                    {:rank :king, :suit :hearts}
+                                    {:rank :3, :suit :diamonds}
+                                    {:rank :3, :suit :diamonds}
+                                    {:rank :1, :suit :clubs})}
+                      {:rank :3, :high :king,
+                       :cards (list {:rank :king, :suit :spades}
+                                    {:rank :king, :suit :hearts}
+                                    {:rank :3, :suit :diamonds}
+                                    {:rank :3, :suit :diamonds}
+                                    {:rank :1, :suit :clubs})})
                 (kind (list {:rank :king, :suit :spades}
                             {:rank :king, :suit :hearts}
                             {:rank :3, :suit :diamonds}
@@ -158,6 +175,14 @@
                                           {:rank :ace, :suit :diamonds}
                                           {:rank :3, :suit :clubs}
                                           {:rank :5, :suit :spades}))))))
+
+(deftest fullhouse-four-of-a-kind
+         (testing "Four-of-a-kind should not be mistaken for full house"
+                  (is (= false
+                         (fullhouse (hand [:spades :ace :5]
+                                          [:hearts :ace]
+                                          [:diamonds :ace]
+                                          [:clubs :ace]))))))
 
 ; TODO: Currently fails, returns one pair of 5s
 ;(deftest bestallhands-fullhouse
