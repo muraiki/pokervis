@@ -80,20 +80,20 @@
 
 
 ; int int -> (int ...)
-(defn nonrepeatingints [howmany maxval]
-  "Generate a vector of non-repeating integers up to a certain value."
+(defn uniqueints [howmany maxval]
+  "Generate a vector of unique integers up to a certain value."
   (if (> howmany maxval) nil  ; make sure we have enough vals for desired # ints
-   ; Generate a lazy series of non-repeating integers up to the size of maxval
+   ; Generate a lazy series of unique integers up to the size of maxval
    ; Take the set of that to remove dups; if it's not large enough try again.
     (let [a (take howmany (repeatedly #(rand-int maxval)))]
                  (if (= (count (set a)) howmany) a
-                   (nonrepeatingints howmany maxval)))))
+                   (uniqueints howmany maxval)))))
                  
 
 ; int deck -> (cards ...)
 (defn drawfromdeck [numdrawn adeck]
   "Helper function for drawmulti"
-  (for [eachcard (nonrepeatingints numdrawn (dec (count adeck)))]
+  (for [eachcard (uniqueints numdrawn (dec (count adeck)))]
     (nth adeck eachcard)))
 
 ; int deck -> {:drawncards (card ...), :remainingdeck deck}
