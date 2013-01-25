@@ -62,7 +62,7 @@
 (defn drawrand [adeck]
   "Draws a random card from a deck, returns a map containing the drawn card
   and a deck minus that card"
-  (let [drawncard (nth adeck (rand-int (count adeck)))]
+  (let [drawncard (nth adeck (rand-int (dec (count adeck))))]
     {:card drawncard, :deck (remove #{drawncard} adeck)}))
 
 ; suit rank hand -> boolean
