@@ -62,7 +62,7 @@
 (defn drawrand [adeck]
   "Draws a random card from a deck, returns a map containing the drawn card
   and a deck minus that card"
-  (let [drawncard (nth adeck (rand-int (dec (count adeck))))]
+  (let [drawncard (rand-nth adeck)]
     {:card drawncard, :deck (remove #{drawncard} adeck)}))
 
 ; suit rank hand -> boolean
@@ -171,27 +171,27 @@
 ; This code is a bit ugly :(
 (defn genfullhouselist [thecards]
   "Helper function for fullhouse"
-  (let [distribution (group-by :rank thecards)]
+  (let [distribution (group-by :rank thecards)
+        distcounts (set (map count (vals distribution)))]
     ; The for only executes if the values of the distribution of cards can be
-    ; divided into two groups.  If they can, then we have a full house;
-    ; otherwise, we don't have one and so return ()
-    (for [k (keys distribution) :when (= 2 (count (vals distribution)))]
-      ; If the key is present 3 times, it is the high rank:
-      {(if (= 3 (count (vals (k distribution))))
-          :high
+    ; divided into two groups of 3 and 2. If they can, then we have a full
+    ; house; otherwise, we don't have one and so return ()
+    (for [eachrank (keys distribution) :when (= #{3 2} distcounts)]
+      {(if (= 3 (count (vals (eachrank distribution))))
+          :high  ; If the key is present 3 times, it is the high rank:
           :full) ; Otherwise it's only present twice, so it is the full rank
-            k} ; set the value of the generated map to the key
-      )))
+          ,  eachrank}))) ; val of the map is the current rank in the for loop
 
 ; (cards ...) -> {:high rank, :full rank} or false
 (defn fullhouse [thecards]
   "Returns the high rank and full rank if a full house, else false;
   doesn't check for > 5 cards"
   (let [genlist (genfullhouselist thecards)]
+    ; genlist returns () if not a full house, but we want false
     (if (= () genlist)
       false
       ; The for in genfullhouselist gives us back the data as a list of two
-      ; maps.  This will pull the maps out of the list and merge them into one.
+      ; maps. This will pull the maps out of the list and merge them into one.
       (merge (first genlist) (second genlist)))))
 
 ; (cards ...) -> {:best rankings-key, :result (cards ...)}

@@ -185,20 +185,20 @@
                                           [:clubs :ace]))))))
 
 ; TODO: Currently fails, returns one pair of 5s
-;(deftest bestallhands-fullhouse
-;  (testing "Testing bestallhands, royal flush"
-;           (is (= {:best :royalflush, :result (list {:rank :queen, :suit :hearts}
-;                                                    {:rank :king, :suit :hearts}
-;                                                    {:rank :ace, :suit :hearts}
-;                                                    {:rank :10, :suit :hearts}
-;                                                    {:rank :jack, :suit :hearts})}
-;                  (bestallhands (list {:rank :ace, :suit :hearts}
-;                                      {:rank :5, :suit :diamonds}
-;                                      {:rank :5, :suit :clubs}
-;                                      {:rank :jack, :suit :hearts}
-;                                      {:rank :queen, :suit :hearts}
-;                                      {:rank :king, :suit :hearts}
-;                                      {:rank :10, :suit :hearts}))))))
+(deftest bestallhands-fullhouse
+  (testing "Testing bestallhands, royal flush"
+           (is (= {:best :royalflush, :result (list {:rank :queen, :suit :hearts}
+                                                    {:rank :king, :suit :hearts}
+                                                    {:rank :ace, :suit :hearts}
+                                                    {:rank :10, :suit :hearts}
+                                                    {:rank :jack, :suit :hearts})}
+                  (bestallhands (list {:rank :ace, :suit :hearts}
+                                      {:rank :5, :suit :diamonds}
+                                      {:rank :5, :suit :clubs}
+                                      {:rank :jack, :suit :hearts}
+                                      {:rank :queen, :suit :hearts}
+                                      {:rank :king, :suit :hearts}
+                                      {:rank :10, :suit :hearts}))))))
 
 (deftest bestallhands-fourkind
   (testing "Testing bestallhands, four of a kind"
