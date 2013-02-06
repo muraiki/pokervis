@@ -78,29 +78,24 @@
   ; Remove wants a set, so we put the vector thecards into a set
   (remove (into #{} thecards) adeck))
 
-
-; int int -> (int ...)
-(defn uniqueints [howmany maxval]
-  "Generate a vector of unique integers up to a certain value."
-  (if (> howmany maxval) nil  ; make sure we have enough vals for desired # ints
-   ; Generate a lazy series of unique integers up to the size of maxval
-   ; Take the set of that to remove dups; if it's not large enough try again.
-    (let [a (take howmany (repeatedly #(rand-int maxval)))]
-                 (if (= (count (set a)) howmany) a
-                   (uniqueints howmany maxval)))))
-                 
-
-; int deck -> (cards ...)
-(defn drawfromdeck [numdrawn adeck]
-  "Helper function for drawmulti"
-  (for [eachcard (uniqueints numdrawn (dec (count adeck)))]
-    (nth adeck eachcard)))
+; int deck {nil} -> {:drawncards (card ...), :remainingdeck deck}
+(defn drawmultihelper [remaining adeck accresults]
+  "Used by drawmulti; do not call on its own."
+  ; TODO: Currently not tail call optimized.
+  (if (zero? remaining)
+    accresults
+    (let [result (drawrand adeck)]
+      (drawmultihelper (dec remaining)
+                       (:deck result)
+                       {:drawncards 
+                          (cons (:card result) (:drawncards accresults))
+                        :remainingdeck
+                          (:deck result)}))))
 
 ; int deck -> {:drawncards (card ...), :remainingdeck deck}
 (defn drawmulti [numdrawn adeck]
-  (let [drawn (drawfromdeck numdrawn adeck)]
-  {:drawncards drawn
-   :remainingdeck (removefromdeck drawn adeck)}))
+  "Draws a few cards from a deck. Returns drawn cards and remaining deck."
+    (drawmultihelper numdrawn adeck {}))
 
 ; (cards ...) -> rank
 (defn highcard [thecards]
