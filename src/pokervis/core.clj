@@ -117,6 +117,7 @@
 (defn royalflush? [thecards]
   "Returns whether a royal flush can be built from the cards passed in.
   Currently doesn't check to see if input is > 5 cards."
+  ; TODO: Fails if >5 cards received
   (let [suit (:suit (first thecards))]
    (and (aflush thecards)
         (cardin? suit :ace thecards)
@@ -191,7 +192,7 @@
 
 ; (cards ...) -> {:best rankings-key, :result (cards ...)}
 (defn besthand [thecards]
-  "Returns the best possible hand for a given set of cards."
+  "Returns the best possible hand for five cards."
   (cond
     (royalflush? thecards) {:best :royalflush, :result thecards}
     (straightflush thecards) {:best :straightflush, :result thecards}

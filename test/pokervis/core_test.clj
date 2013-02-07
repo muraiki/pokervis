@@ -185,20 +185,18 @@
                                           [:clubs :ace]))))))
 
 ; TODO: Currently fails, returns one pair of 5s
+; This will work if [:hearts :queen :king :ace :jack :10] is the first arg
+; It seems like the problem actually lies in besthandcombo, where the val of
+; :best is ending up in some instances as a function like
+; #<core$highcard pokervis.core$highcard@59dc73f9> instead of a result 
 (deftest bestallhands-fullhouse
   (testing "Testing bestallhands, royal flush"
-           (is (= {:best :royalflush, :result (list {:rank :queen, :suit :hearts}
-                                                    {:rank :king, :suit :hearts}
-                                                    {:rank :ace, :suit :hearts}
-                                                    {:rank :10, :suit :hearts}
-                                                    {:rank :jack, :suit :hearts})}
-                  (bestallhands (list {:rank :ace, :suit :hearts}
-                                      {:rank :5, :suit :diamonds}
-                                      {:rank :5, :suit :clubs}
-                                      {:rank :jack, :suit :hearts}
-                                      {:rank :queen, :suit :hearts}
-                                      {:rank :king, :suit :hearts}
-                                      {:rank :10, :suit :hearts}))))))
+           (is (= {:best :royalflush, :result (hand [:hearts :queen :10 :jack :ace :king]
+                                                    [:clubs :5]
+                                                    [:diamonds :5])}
+                  (bestallhands (hand [:clubs :5]
+                                      [:diamonds :5]
+                                      [:hearts :queen :king :ace :jack :10]))))))
 
 (deftest bestallhands-fourkind
   (testing "Testing bestallhands, four of a kind"
