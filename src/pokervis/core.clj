@@ -56,7 +56,7 @@
 ; Macro to make defining hands a little less tedious by saving one pair of brackets
 ; Usage: (hand [:spades :2 :3 :4] [:hearts :king :queen])
 (defmacro hand [& args]
-  `(set (genhand [~@args])))
+  `(genhand [~@args]))
 
 ; deck -> {:card card, :deck deck}
 (defn drawrand [adeck]
