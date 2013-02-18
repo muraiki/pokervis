@@ -3,6 +3,77 @@
         pokervis.core))
 
 ; TODO: write a test to verify drawing x cards yields a deck of 52 - x count
+(deftest extractrankings-test
+  (testing "Testing extractrankings"
+           (is (= [14 13 12 11 10])
+               (hand [:hearts :queen :10 :jack :ace :king]))))
+
+(deftest handeq?-eq
+  (testing "Testing handeq? equal hands"
+           (is (handeq? (hand [:clubs :2]
+                              [:diamonds :10 :6]
+                              [:hearts :queen :jack]
+                              [:spades :4 :8])
+                        (hand [:clubs :2]
+                              [:diamonds :10 :6]
+                              [:hearts :queen :jack]
+                              [:spades :4 :8])))))
+
+(deftest handeq?-noteq
+  (testing "Testing handeq? not equal hands"
+           (is (false? (handeq? (hand [:clubs :2]
+                              [:diamonds :10 :6]
+                              [:hearts :queen :jack]
+                              [:spades :4 :8])
+                        (hand [:clubs :2]
+                              [:diamonds :10 :6]
+                              [:hearts :queen :jack]
+                              [:spades :7 :8]))))))
+
+
+(deftest resulteq?-eq
+  (testing "Testing resulteq? equal results"
+           (is (resulteq? {:best :royalflush,
+                           :result (hand [:hearts :queen :10 :jack :ace :king]
+                                         [:clubs :5]
+                                         [:diamonds :5])}
+                     {:best :royalflush,
+                      :result (hand [:clubs :5]
+                                    [:diamonds :5]
+                                    [:hearts :queen :king :ace :jack :10])}))))
+
+(deftest resulteq?-eq
+  (testing "Testing resulteq? not equal results"
+           (is (false? (resulteq? {:best :royalflush,
+                                   :result (hand [:hearts :queen :10 :jack :ace :king]
+                                                 [:clubs :5]
+                                                 [:diamonds :5])}
+                     {:best :royalflush,
+                      :result (hand [:clubs :5]
+                                    [:diamonds :3]
+                                    [:hearts :queen :king :ace :jack :10])})))))
+
+(deftest resulteq?-eq
+  (testing "Testing resulteq? equal best"
+           (is (resulteq? {:best :royalflush,
+                           :result (hand [:hearts :queen :10 :jack :ace :king]
+                                         [:clubs :5]
+                                         [:diamonds :5])}
+                     {:best :royalflush,
+                      :result (hand [:clubs :5]
+                                    [:diamonds :5]
+                                    [:hearts :queen :king :ace :jack :10])}))))
+
+(deftest resulteq?-eq
+  (testing "Testing resulteq? not equal best"
+           (is (false? (resulteq? {:best :royalflush,
+                                   :result (hand [:hearts :queen :10 :jack :ace :king]
+                                                 [:clubs :5]
+                                                 [:diamonds :5])}
+                     {:best :onepair,
+                      :result (hand [:clubs :5]
+                                    [:diamonds :3]
+                                    [:hearts :queen :king :ace :jack :10])})))))
 
 (deftest aflush-true
          (testing "Testing aflush for flush ace high")
@@ -169,7 +240,7 @@
 
 (deftest fullhouse-false
          (testing "Testing fullhouse false"
-                  (is (= false
+                  (is (false?
                          (fullhouse (list {:rank :ace, :suit :spades}
                                           {:rank :ace, :suit :hearts}
                                           {:rank :ace, :suit :diamonds}
@@ -178,40 +249,57 @@
 
 (deftest fullhouse-four-of-a-kind
          (testing "Four-of-a-kind should not be mistaken for full house"
-                  (is (= false
+                  (is (false?
                          (fullhouse (hand [:spades :ace :5]
                                           [:hearts :ace]
                                           [:diamonds :ace]
                                           [:clubs :ace]))))))
 
 ; TODO: Currently fails, returns one pair of 5s
-; This will work if [:hearts :queen :king :ace :jack :10] is the first arg
-; It seems like the problem actually lies in besthandcombo, where the val of
-; :best is ending up in some instances as a function like
-; #<core$highcard pokervis.core$highcard@59dc73f9> instead of a result 
 (deftest bestallhands-fullhouse
   (testing "Testing bestallhands, royal flush"
-           (is (= {:best :royalflush, :result (hand [:hearts :queen :10 :jack :ace :king]
-                                                    [:clubs :5]
-                                                    [:diamonds :5])}
+           (is (resulteq? {:best :royalflush
+                           :result (hand [:hearts :queen :10 :jack :ace :king])}
                   (bestallhands (hand [:clubs :5]
                                       [:diamonds :5]
                                       [:hearts :queen :king :ace :jack :10]))))))
 
 (deftest bestallhands-fourkind
   (testing "Testing bestallhands, four of a kind"
-           (is (= {:best :fourkind, :result (list {:rank :5, :suit :hearts}
-                                                  {:rank :5, :suit :diamonds}
-                                                  {:rank :5, :suit :clubs}
-                                                  {:rank :5, :suit :spades}
-                                                  {:rank :3, :suit :hearts})}
-                  (bestallhands (list {:rank :5, :suit :hearts}
-                                      {:rank :5, :suit :diamonds}
-                                      {:rank :5, :suit :clubs}
-                                      {:rank :5, :suit :spades}
-                                      {:rank :3, :suit :hearts}
-                                      {:rank :2, :suit :spades}
-                                      {:rank :10, :suit :diamonds}))))))
+           (is (resulteq? {:best :fourkind
+                           :result (hand [:hearts :5]
+                                         [:diamonds :5]
+                                         [:clubs :5]
+                                         [:spades :5 :ace])}
+                          (bestallhands (hand [:hearts :5]
+                                              [:diamonds :5 :jack]
+                                              [:clubs :5 :10]
+                                              [:spades :5 :ace]))))))
 
+(deftest comparetwohands-firstgreater
+  (testing "Testing comparetwohands, first hand greater."
+           (is (resulteq? (comparetwohands {:best :royalflush, :result (hand [:hearts :queen :10 :jack :ace :king])}
+                                           {:best :onepair, :result (hand [:hearts :2 :3 :4] [:spades :4 :jack])})
+                          {:best :royalflush,
+                           :result (hand [:hearts :queen :10 :jack :ace :king])}))))
 
-                            
+(deftest comparetwohands-secondgreater
+  (testing "Testing comparetwohands, secondhand greater."
+           (is (resulteq? (comparetwohands {:best :onepair, :result (hand [:hearts :2 :3 :4] [:spades :4 :jack])}
+                                           {:best :royalflush, :result (hand [:hearts :queen :10 :jack :ace :king])})
+                          {:best :royalflush,
+                           :result (hand [:hearts :queen :10 :jack :ace :king])}))))
+
+(deftest comparetwohands-queenpair
+  (testing "Testing comparetwohands, pair of queens beats pair of fours."
+           (is (resulteq? (comparetwohands {:best :onepair, :result (hand [:hearts :2 :3 :4] [:spades :4 :jack])}
+                                           {:best :onepair, :result (hand [:hearts :2 :3 :queen] [:spades :queen :jack])})
+                          {:best :onepair,
+                           :result (hand [:hearts :2 :3 :queen] [:spades :queen :jack])}))))
+
+(deftest comparetwohands-queenpairacehigh
+  (testing "Testing comparetwohands, pair of queens, ace high."
+           (is (resulteq? (comparetwohands {:best :onepair, :result (hand [:hearts :2 :3 :queen] [:spades :queen :ace])}
+                                           {:best :onepair, :result (hand [:hearts :2 :3 :queen] [:spades :queen :jack])})
+                          {:best :onepair,
+                           :result (hand [:hearts :2 :3 :queen] [:spades :queen :ace])}))))

@@ -56,7 +56,7 @@
 ; Macro to make defining hands a little less tedious by saving one pair of brackets
 ; Usage: (hand [:spades :2 :3 :4] [:hearts :king :queen])
 (defmacro hand [& args]
-  `(genhand [~@args]))
+  `(set (genhand [~@args])))
 
 ; deck -> {:card card, :deck deck}
 (defn drawrand [adeck]
@@ -190,6 +190,20 @@
       ; maps. This will pull the maps out of the list and merge them into one.
       (merge (first genlist) (second genlist)))))
 
+; (cards ...) (cards ...) -> boolean
+(defn handeq? [handa handb]
+      "Returns whether two hands are equal."
+      ; This func is necessary because vectors are ordered, so two hands
+      ; generated with (hand) might not show up as equal with plain =
+      (= (set handa) (set handb)))
+
+; {:best ranking, :result (hand ...)} {:best ranking, :result (cards ...)} -> boolean
+(defn resulteq? [resulta resultb]
+  "Returns whether two results from besthand are equal."
+  (and
+    (= (:best resulta) (:best resultb))
+    (handeq? (:result resulta) (:result resultb))))
+
 ; (cards ...) -> {:best rankings-key, :result (cards ...)}
 (defn besthand [thecards]
   "Returns the best possible hand for five cards."
@@ -203,7 +217,7 @@
     (not= () (kind thecards 3)) {:best :threekind, :result thecards}
     (= 2 (count (kind thecards 2))) {:best :twopair, :result thecards}
     (not= () (kind thecards 2)) {:best :onepair, :result thecards}
-    :else {:best highcard, :result thecards}))
+    :else {:best :highcard, :result thecards}))
 
 ; (cards ...) -> ({:best rankings-key, :result (cards ...)} ...)
 (defn besthandcombo [thecards]
@@ -212,7 +226,40 @@
       (for [eachhand allhands]
         (besthand eachhand))))
 
+; (cards ...) -> [int ...]
+(defn extractrankings [thecards]
+  "Extract the rank values from a series of cards, sorted high to low."
+  (->> thecards
+    (map :rank)
+    (map ranks)
+    (sort)
+    (reverse)))
+
+; (cards ...) (cards ...) -> (cards ...)
+(defn comparerankings [cardsa cardsb]
+  "Returns which of two hands wins by rankings."
+  (let [ranksa (extractrankings cardsa)
+        ranksb (extractrankings cardsb)]
+    (loop [index 0]
+      (cond
+       (> (nth ranksa index) (nth ranksb index)) cardsa
+       (> (nth ranksb index) (nth ranksa index)) cardsb
+       :else (recur (inc index))))))
+
+; {:best ranking, :result (cards ...)} {:best ranking, :result (cards ...)} -> {:best ranking, :result (cards ...)}
+(defn comparetwohands [resulta resultb]
+  "Returns the better of two hands."
+  (let [ranka (rankings (:best resulta))
+        rankb (rankings (:best resultb))]
+   (cond
+     (resulteq? resulta resultb) resulta
+     (> ranka rankb) resulta
+     (> rankb ranka) resultb
+     :else
+       {:best (:best resulta)
+        :result (comparerankings (:result resulta) (:result resultb))})))
+
 ; (cards ...) -> {:best rankings-key, :result (cards ...)}
 (defn bestallhands [thecards]
-  (first (sort-by #(:rankings (:best %)) (besthandcombo thecards))))
-
+  "Determine the best possible hand for a given vector of cards."
+  (reduce comparetwohands (besthandcombo thecards)))
