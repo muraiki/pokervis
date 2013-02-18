@@ -46,17 +46,12 @@
     {:suit (first args) :rank eachrank}))
 
 ; ((suit ranks...) ...) -> ({:suit :ranks} ...)
-(defn genhand [args]
+(defn hand [& args]
   "Sends a vector of shorthand cards to gencards.
    Example: (genhand [[:spades :2 :3 :4] [:hearts :king :queen]])
    Returns: ({:suit :spades, :rank :2} {:suit :spades, :rank :3} {:suit :spades, :rank :4}
    {:suit :hearts, :rank :king} {:suit :hearts, :rank :queen})"
   (mapcat gencards args))
-
-; Macro to make defining hands a little less tedious by saving one pair of brackets
-; Usage: (hand [:spades :2 :3 :4] [:hearts :king :queen])
-(defmacro hand [& args]
-  `(genhand [~@args]))
 
 ; deck -> {:card card, :deck deck}
 (defn drawrand [adeck]
