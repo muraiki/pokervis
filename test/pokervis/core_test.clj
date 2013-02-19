@@ -255,27 +255,6 @@
                                           [:diamonds :ace]
                                           [:clubs :ace]))))))
 
-; TODO: Currently fails, returns one pair of 5s
-(deftest bestallhands-fullhouse
-  (testing "Testing bestallhands, royal flush"
-           (is (resulteq? {:best :royalflush
-                           :result (hand [:hearts :queen :10 :jack :ace :king])}
-                  (bestallhands (hand [:clubs :5]
-                                      [:diamonds :5]
-                                      [:hearts :queen :king :ace :jack :10]))))))
-
-(deftest bestallhands-fourkind
-  (testing "Testing bestallhands, four of a kind"
-           (is (resulteq? {:best :fourkind
-                           :result (hand [:hearts :5]
-                                         [:diamonds :5]
-                                         [:clubs :5]
-                                         [:spades :5 :ace])}
-                          (bestallhands (hand [:hearts :5]
-                                              [:diamonds :5 :jack]
-                                              [:clubs :5 :10]
-                                              [:spades :5 :ace]))))))
-
 (deftest comparetwohands-firstgreater
   (testing "Testing comparetwohands, first hand greater."
            (is (resulteq? (comparetwohands {:best :royalflush, :result (hand [:hearts :queen :10 :jack :ace :king])}
@@ -303,3 +282,104 @@
                                            {:best :onepair, :result (hand [:hearts :2 :3 :queen] [:spades :queen :jack])})
                           {:best :onepair,
                            :result (hand [:hearts :2 :3 :queen] [:spades :queen :ace])}))))
+
+(deftest bestallhands-royalflush
+  (testing "Testing bestallhands, royal flush"
+           (is (resulteq? {:best :royalflush
+                           :result (hand [:hearts :queen :10 :jack :ace :king])}
+                  (bestallhands (hand [:clubs :5]
+                                      [:diamonds :5]
+                                      [:hearts :queen :king :ace :jack :10]))))))
+
+(deftest bestallhands-straightflush
+  (testing "Testing bestallhands, straight flush ace low"
+           (is (resulteq? {:best :straightflush
+                           :result (hand [:hearts :ace :2 :3 :4 :5])}
+                  (bestallhands (hand [:clubs :5]
+                                      [:diamonds :5]
+                                      [:hearts :ace :2 :3 :4 :5]))))))
+
+(deftest bestallhands-fourkind
+  (testing "Testing bestallhands, four of a kind"
+           (is (resulteq? {:best :fourkind
+                           :result (hand [:hearts :5]
+                                         [:diamonds :5]
+                                         [:clubs :5]
+                                         [:spades :5 :ace])}
+                          (bestallhands (hand [:hearts :5]
+                                              [:diamonds :5 :jack]
+                                              [:clubs :5 :10]
+                                              [:spades :5 :ace]))))))
+
+(deftest bestallhands-fullhouse
+  (testing "Testing bestallhands, full house"
+           (is (resulteq? {:best :fullhouse
+                           :result (hand [:hearts :5 :2]
+                                         [:clubs :5 :2]
+                                         [:diamonds :5])}
+                  (bestallhands (hand [:hearts :5 :2 :jack] [:clubs :5 :2] [:diamonds :5 :2]))))))
+
+(deftest bestallhands-flush
+  (testing "Testing bestallhands, flush"
+           (is (resulteq? {:best :flush
+                           :result (hand [:hearts :ace :2 :3 :jack :8])}
+                  (bestallhands (hand [:hearts :ace :2 :3 :jack :8]
+                                      [:spades :jack :queen]))))))
+
+(deftest bestallhands-straight
+  (testing "Testing bestallhands, straight ace low"
+           (is (resulteq? {:best :straight
+                           :result (hand [:hearts :ace :2 :3 :5]
+                                         [:spades :4])}
+                  (bestallhands (hand [:hearts :ace :2 :3 :5]
+                                      [:spades :4 :5]
+                                      [:clubs :5]))))))
+
+(deftest bestallhands-straighthigh
+  (testing "Testing bestallhands, straight ace high"
+           (is (resulteq? {:best :straight
+                           :result (hand [:hearts :ace :king :queen]
+                                         [:spades :jack :10])}
+                  (bestallhands (hand [:hearts :ace :king :queen]
+                                      [:spades :jack :10]
+                                      [:clubs :5 :ace]))))))
+
+(deftest bestallhands-threekind
+  (testing "Testing bestallhands, three of a kind"
+           (is (resulteq? {:best :threekind
+                           :result (hand [:hearts :ace :10]
+                                         [:spades :ace :9]
+                                         [:clubs :ace])}
+                  (bestallhands (hand [:hearts :ace :10]
+                                      [:spades :ace :9]
+                                      [:clubs :ace :2 :5]))))))
+
+(deftest bestallhands-twopair
+  (testing "Testing bestallhands, two pair"
+           (is (resulteq? {:best :twopair
+                           :result (hand [:hearts :ace :10]
+                                         [:spades :ace :10]
+                                         [:clubs :jack])}
+                  (bestallhands (hand [:hearts :ace :10]
+                                      [:spades :ace :10]
+                                      [:clubs :jack :2 :5]))))))
+
+(deftest bestallhands-onepair
+  (testing "Testing bestallhands, one pair"
+           (is (resulteq? {:best :onepair
+                           :result (hand [:hearts :ace :9]
+                                         [:spades :ace :8]
+                                         [:clubs :jack])}
+                  (bestallhands (hand [:hearts :ace :9]
+                                      [:spades :ace :8]
+                                      [:clubs :jack :2 :5]))))))
+
+(deftest bestallhands-highcard
+  (testing "Testing bestallhands, high card"
+           (is (resulteq? {:best :highcard
+                           :result (hand [:hearts :ace :9]
+                                         [:spades :7 :8]
+                                         [:clubs :jack])}
+                  (bestallhands (hand [:hearts :ace :9]
+                                      [:spades :7 :8]
+                                      [:clubs :jack :2 :5]))))))

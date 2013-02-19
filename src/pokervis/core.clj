@@ -35,9 +35,10 @@
                })
 
 ; List of lists of rank values that qualify as straights
-(def straightlist (merge
-                (partition 5 1 (sort (vals ranks)))
-                (list 2 3 4 5 14))) ; Ace low
+(def straightlist
+  (merge
+    (partition 5 1 (sort (vals ranks)))
+    (list 2 3 4 5 14))) ; Ace low
 
 ; (suit ranks ...) -> ({:suit :rank} ...)
 (defn gencards [args]
@@ -234,11 +235,16 @@
 (defn comparerankings [cardsa cardsb]
   "Returns which of two hands wins by rankings."
   (let [ranksa (extractrankings cardsa)
-        ranksb (extractrankings cardsb)]
+        ranksb (extractrankings cardsb)
+        maxindex (dec (count ranksa))]
     (loop [index 0]
       (cond
        (> (nth ranksa index) (nth ranksb index)) cardsa
        (> (nth ranksb index) (nth ranksa index)) cardsb
+       (= index maxindex) cardsa
+       ; ^ TODO: Two identical hands. Shouldn't end up here when calling from
+       ; comparetwohands, but I have to look into why it sometimes does
+       ; from the tests for straight ace high, ace low, and straightflush
        :else (recur (inc index))))))
 
 ; {:best ranking, :result (cards ...)} {:best ranking, :result (cards ...)} -> {:best ranking, :result (cards ...)}
