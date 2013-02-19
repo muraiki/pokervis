@@ -1,7 +1,8 @@
-.lein-failures
 .git
-.lein-repl-history
 .settings
 bin
 .DS_Store
 .classpath
+target
+.lein*
+public/pokervis.js
