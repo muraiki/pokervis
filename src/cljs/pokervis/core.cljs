@@ -1,5 +1,5 @@
 (ns pokervis.core
-  (:require [clojure.math.combinatorics :as combo]))
+  (:require [pokervis.combo :as combo]))
 
 (def suits [:clubs :diamonds :hearts :spades])
 
