@@ -6,3 +6,4 @@ bin
 target
 .lein*
 public/pokervis.js
+public/pokervis-prod.js

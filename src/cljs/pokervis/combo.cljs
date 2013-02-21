@@ -1,5 +1,8 @@
 (ns pokervis.combo)
 
+; math.combinatorics doesn't support clojurescript, but I am able to use these
+; functions as long as I replace rseq with reverse. I don't think reverse is
+; lazy, though.
 ; From https://github.com/clojure/math.combinatorics/blob/master/src/main/clojure/clojure/math/combinatorics.clj
 
 (defn- index-combinations

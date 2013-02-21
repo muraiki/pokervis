@@ -13,10 +13,20 @@
   
   :plugins [[lein-cljsbuild "0.3.0"]]
   
-  :cljsbuild
-   {:builds
-    [{:source-paths ["src/cljs"],
+  :cljsbuild {
+    
+    :builds {
+
+    :dev
+    {:source-paths ["src/cljs"]
       :compiler
-      {:pretty-print true,
-       :output-to "public/pokervis.js",
-       :optimizations :whitespace}}]})
+      {:pretty-print true
+       :output-to "public/pokervis.js"
+       :optimizations :whitespace}}
+
+    :prod
+    {:source-paths ["src/cljs"]
+      :compiler
+      {:pretty-print false
+       :output-to "public/pokervis-prod.js"
+       :optimizations :advanced}}}})
