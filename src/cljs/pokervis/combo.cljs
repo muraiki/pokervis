@@ -16,7 +16,8 @@
                (recur (assoc c (dec j) (dec (c j))) (dec j)))))))),
      step
      (fn step [c j]
-       (cons (rseq (subvec c 1 (inc n)))
+       ;(cons (rseq (subvec c 1 (inc n)))
+        (cons (reverse (subvec c 1 (inc n)))
          (lazy-seq (let [next-step (iter-comb c j)]
                  (when next-step (step (next-step 0) (next-step 1)))))))]
      (step c 1))))

@@ -4,6 +4,6 @@
 
 (defn main []
   "Init function to run on page load."
-  (vis/begin-simulation))
+  (vis/animation-loop))
 
 (on-load main)

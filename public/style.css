@@ -1,0 +1,12 @@
+html
+{
+	font-family: Arial, sans-serif;
+}
+
+div:poker
+{
+	transition: width 2s;
+  -moz-transition: width 2s; /* Firefox 4 */
+  -webkit-transition: width 2s; /* Safari and Chrome */
+  -o-transition: width 2s; /* Opera */
+}
