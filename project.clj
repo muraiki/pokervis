@@ -21,12 +21,12 @@
     {:source-paths ["src/cljs"]
       :compiler
       {:pretty-print true
-       :output-to "public/pokervis.js"
+       :output-to "public/pokervis-dev.js"
        :optimizations :whitespace}}
 
     :prod
     {:source-paths ["src/cljs"]
       :compiler
       {:pretty-print false
-       :output-to "public/pokervis-prod.js"
+       :output-to "public/pokervis.js"
        :optimizations :advanced}}}})

@@ -4,20 +4,19 @@ The beginnings of a poker odds visualization program in Clojurescript using Mont
 
 # How to use
 
-First install [Leiningen](http://leiningen.org/)
-Clone the repo and run:
+First install [Leiningen](http://leiningen.org/). Then clone the repo and run:
 ```
 lein deps
 lein cljsbuild once
 ```
 
-This will generate two js files in /public, the default pokervis.js is not really optimized, but is easier to debug. The pokervis-prod.js is optimized, is about 10x smaller, and runs much faster.
+This will generate two js files in /public: pokervis.js is fully optimized but not really suitable for debugging. pokervis-dev.js is much larger and slower, but it's easier to map JS errors in it to the original clojurescript source.
 
 # How to develop
 
 If you are working on this, run `lein cljsbuild auto dev` to automatically recompile the js whenever a source file changes. Change dev to prod to generate the production js, or leave it off completely to keep generating both builds.
 
-There's still some stuff left over in this project from the initial version which was in Clojure, which I'll clean out. I'd like to bring my tests over to Clojurescript, though. And I'd also like to make the poker engine a proper library!
+I'm new to Clojure and Clojurescript, so please excuse any bad code! I'm also working on turning the poker engine into its own library, [clojurepoker](https://github.com/muraiki/clojurepoker)
 
 ## License
 

@@ -5,5 +5,4 @@ bin
 .classpath
 target
 .lein*
-public/pokervis.js
-public/pokervis-prod.js
+public/*.js
