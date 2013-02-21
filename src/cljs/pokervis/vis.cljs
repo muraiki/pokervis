@@ -7,16 +7,23 @@
 
 ; Atom to keep track of all drawn cards
 (def !results
-  (atom []))
+  (atom {}))
 
 ; How many cards to draw: 7 for Texas Hold Em
 (def howmanytodraw 7)
+
+(defn genwinner []
+  "Generates a new winning hand."
+  (:best (pv/bestallhands
+    (:drawncards (pv/drawmulti howmanytodraw pv/deck)))))
 
 (defn simulation []
   "Start generating hands and visualizing them"
   ; Might be better to do this in batches
   ;(.log js/console (pr-str
-    (swap! !results conj (:best (pv/bestallhands (:drawncards (pv/drawmulti howmanytodraw pv/deck))))))
+  (let [winner (genwinner)
+        currentval (winner @!results)]
+        (swap! !results assoc winner (inc currentval))))
 
 (defn animation-loop []
   (.requestAnimationFrame (dom/getWindow) animation-loop)
@@ -24,7 +31,7 @@
 
 (bind! "#poker"
   (let [width 1000 bar-height 30
-        data (frequencies @!results)
+        data @!results
         s (scale/linear :domain [0 (apply max (vals data))]
                         :range [0 width])]
 
@@ -36,6 +43,6 @@
                       [:span {:style {:color "black"}} label]]))]))
 
 (bind! "#freqs"
-  (let [data (frequencies @!results)]
+  (let [data @!results]
     [:div
       (pr-str data)]))
