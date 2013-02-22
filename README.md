@@ -1,6 +1,6 @@
 # pokervis
 
-The beginnings of a poker odds visualization program in Clojurescript using Monte Carlo simulation. C2 is used for image visualization. It currently only works in Chrome, but I'm working on that!
+The beginnings of a poker odds visualization program in Clojurescript using Monte Carlo simulation. C2 is used for image visualization. It should work in Chrome, Firefox, IE 10, and Safari 6 or greater.
 
 # How to use
 
