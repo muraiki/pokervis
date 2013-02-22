@@ -30,7 +30,7 @@
   (simulation))
 
 (bind! "#poker"
-  (let [width 1000 bar-height 30
+  (let [width 600 bar-height 30
         data @!results
         s (scale/linear :domain [0 (apply max (vals data))]
                         :range [0 width])]
@@ -44,5 +44,10 @@
 
 (bind! "#freqs"
   (let [data @!results]
+    [:div
+      (pr-str data)]))
+
+(bind! "#total"
+  (let [data (reduce + (vals @!results))]
     [:div
       (pr-str data)]))
