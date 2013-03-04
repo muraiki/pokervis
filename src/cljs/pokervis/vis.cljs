@@ -2,7 +2,7 @@
   (:use-macros [c2.util :only [bind!]])
   (:use [c2.core :only [unify]])
   (:require [c2.scale :as scale]
-            [pokervis.core :as pv]
+            [clojurepoker.core :as cp]
             [goog.dom :as dom]))
 
 ; Atom to keep track of all drawn cards
@@ -14,12 +14,11 @@
 
 (defn genwinner []
   "Generates a new winning hand."
-  (:best (pv/bestallhands
-    (:drawncards (pv/drawmulti howmanytodraw pv/deck)))))
+  (:best (cp/bestallhands
+    (:drawncards (cp/drawmulti howmanytodraw cp/deck)))))
 
 (defn simulation []
   "Start generating hands and visualizing them"
-  ; Might be better to do this in batches
   ;(.log js/console (pr-str
   (let [winner (genwinner)
         currentval (winner @!results)]
