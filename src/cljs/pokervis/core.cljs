@@ -3,26 +3,14 @@
 
 (def suits [:clubs :diamonds :hearts :spades])
 
-(def ranks {:2 2,
-            :3 3,
-            :4 4,
-            :5 5,
-            :6 6,
-            :7 7,
-            :8 8,
-            :9 9,
-            :10 10,
-            :jack 11,
-            :queen 12,
-            :king 13,
-            :ace 14})
+(def ranks {:2 2, :3 3, :4 4, :5 5, :6 6, :7 7, :8 8, :9 9,
+            :10 10, :jack 11, :queen 12, :king 13, :ace 14})
 
 (def ranks-inv (into {} (for [[key val] ranks] [val key])))
 
 (def deck (for [s suits, c (keys ranks)] {:suit s, :rank c}))
 
-(def rankings {
-               :royalflush 10,
+(def rankings {:royalflush 10,
                :straightflush 9,
                :fourkind 8,
                :fullhouse 7,
@@ -31,8 +19,7 @@
                :threekind 4,
                :twopair 3,
                :onepair 2,
-               :highcard 1
-               })
+               :highcard 1})
 
 ; List of lists of rank values that qualify as straights
 (def straightlist
@@ -74,24 +61,18 @@
   ; Remove wants a set, so we put the vector thecards into a set
   (remove (into #{} thecards) adeck))
 
-; int deck {nil} -> {:drawncards (card ...), :remainingdeck deck}
-(defn drawmultihelper [remaining adeck accresults]
-  "Used by drawmulti; do not call on its own."
-  ; TODO: Currently not tail call optimized.
-  (if (zero? remaining)
-    accresults
-    (let [result (drawrand adeck)]
-      (drawmultihelper (dec remaining)
-                       (:deck result)
-                       {:drawncards 
-                          (cons (:card result) (:drawncards accresults))
-                        :remainingdeck
-                          (:deck result)}))))
-
 ; int deck -> {:drawncards (card ...), :remainingdeck deck}
 (defn drawmulti [numdrawn adeck]
   "Draws a few cards from a deck. Returns drawn cards and remaining deck."
-    (drawmultihelper numdrawn adeck {}))
+  (loop [alldrawn   '()
+         numdrawn   numdrawn
+         remdeck    adeck]
+    (if (zero? numdrawn)
+      {:drawncards alldrawn, :remainingdeck remdeck}
+      (let [result (drawrand remdeck)]
+        (recur (cons (:card result) alldrawn)
+               (dec numdrawn)
+               (:deck result))))))
 
 ; (cards ...) -> rank
 (defn highcard [thecards]
@@ -146,18 +127,18 @@
       false)))
 
 ; (cards ...) -> int -> ({:rank rank, :high rank, :cards (cards ...)}...)
-; or () if no matches
+; or '() if no matches
 (defn kind [thecards howmany]
   "Checks if a hand can meet the criteria for n-of-a-kind.
   Can return multiple satisfying ranks."
   (let [distribution (group-by :rank thecards)]
     (remove false?
-            (for [k (keys distribution)]
-              (if (= howmany (count (k distribution)))
-                {:rank k
-                 :high (highcard (remove #(= (:rank %) k) thecards))
-                 :cards thecards}
-                false)))))    
+			(for [k (keys distribution)]
+				(if (= howmany (count (k distribution)))
+					{:rank k
+					 :high (highcard (remove #(= (:rank %) k) thecards))
+           :cards thecards}
+          false)))))    
 
 ; (cards ...) -> ({:high rank} {:full rank}) or ()
 ; This code is a bit ugly :(
@@ -170,9 +151,9 @@
     ; house; otherwise, we don't have one and so return ()
     (for [eachrank (keys distribution) :when (= #{3 2} distcounts)]
       {(if (= 3 (count (vals (eachrank distribution))))
-          :high  ; If the key is present 3 times, it is the high rank:
-          :full) ; Otherwise it's only present twice, so it is the full rank
-          ,  eachrank}))) ; val of the map is the current rank in the for loop
+      	:high  ; If the key is present 3 times, it is the high rank:
+        :full) ; Otherwise it's only present twice, so it is the full rank
+        ,  eachrank}))) ; val of the map is the current rank in the for loop
 
 ; (cards ...) -> {:high rank, :full rank} or false
 (defn fullhouse [thecards]
@@ -188,10 +169,10 @@
 
 ; (cards ...) (cards ...) -> boolean
 (defn handeq? [handa handb]
-      "Returns whether two hands are equal."
-      ; This func is necessary because vectors are ordered, so two hands
-      ; generated with (hand) might not show up as equal with plain =
-      (= (set handa) (set handb)))
+	"Returns whether two hands are equal."
+  ; This func is necessary because vectors are ordered, so two hands
+  ; generated with (hand) might not show up as equal with plain =
+  (= (set handa) (set handb)))
 
 ; {:best ranking, :result (hand ...)} {:best ranking, :result (cards ...)} -> boolean
 (defn resulteq? [resulta resultb]
@@ -218,18 +199,18 @@
 ; (cards ...) -> ({:best rankings-key, :result (cards ...)} ...)
 (defn besthandcombo [thecards]
   "Returns the best possible hands for all combinations of given cards."
-    (let [allhands (combo/combinations thecards 5)]
-      (for [eachhand allhands]
-        (besthand eachhand))))
+  (let [allhands (combo/combinations thecards 5)]
+    (for [eachhand allhands]
+      (besthand eachhand))))
 
 ; (cards ...) -> [int ...]
 (defn extractrankings [thecards]
   "Extract the rank values from a series of cards, sorted high to low."
   (->> thecards
-    (map :rank)
-    (map ranks)
-    (sort)
-    (reverse)))
+    (map :rank)		; Get only the ranks
+    (map ranks)		; Get the numerical value for each rank
+    (sort)				; Order them
+    (reverse)))		; Highest first
 
 ; (cards ...) (cards ...) -> (cards ...)
 (defn comparerankings [cardsa cardsb]
@@ -237,19 +218,21 @@
   (let [ranksa (extractrankings cardsa)
         ranksb (extractrankings cardsb)
         maxindex (dec (count ranksa))]
+    ; This loop steps through each list of sorted ranks and compares them,
+    ; ending with the first non-tie.
     (loop [index 0]
       (cond
-       (> (nth ranksa index) (nth ranksb index)) cardsa
-       (> (nth ranksb index) (nth ranksa index)) cardsb
-       (= index maxindex) cardsa
-       ; ^ TODO: Two identical hands. Shouldn't end up here when calling from
-       ; comparetwohands, but I have to look into why it sometimes does
-       ; from the tests for straight ace high, ace low, and straightflush
-       :else (recur (inc index))))))
+        (> (nth ranksa index) (nth ranksb index)) cardsa
+        (> (nth ranksb index) (nth ranksa index)) cardsb
+        (= index maxindex) cardsa
+        ; ^ TODO: Two identical hands. Shouldn't end up here when calling from
+        ; comparetwohands, but I have to look into why it sometimes does
+        ; from the tests for straight ace high, ace low, and straightflush
+        :else (recur (inc index))))))
 
 ; {:best ranking, :result (cards ...)} {:best ranking, :result (cards ...)} -> {:best ranking, :result (cards ...)}
-(defn comparetwohands [resulta resultb]
-  "Returns the better of two hands."
+(defn comparetwobesthands [resulta resultb]
+  "Returns the better of two hands generated from besthandcombo."
   (let [ranka (rankings (:best resulta))
         rankb (rankings (:best resultb))]
    (cond
@@ -260,7 +243,14 @@
        {:best (:best resulta)
         :result (comparerankings (:result resulta) (:result resultb))})))
 
-; (cards ...) -> {:best rankings-key, :result (cards ...)}
+; (cards ...) -> {:best rankings, :result (cards ...)}
 (defn bestallhands [thecards]
-  "Determine the best possible hand for a given vector of cards."
-  (reduce comparetwohands (besthandcombo thecards)))
+  "Determine the best possible hand for a given vector of cards,
+   such as 7 cards in Texas Hold Em."
+  (reduce comparetwobesthands (besthandcombo thecards)))
+
+; (cards...) (cards ...) -> {:best ranking, :result (cards ...)}
+(defn comparetwo7 [handa handb]
+  "Compare two 7-card hands."
+  (comparetwobesthands (bestallhands handa)
+                       (bestallhands handb)))
