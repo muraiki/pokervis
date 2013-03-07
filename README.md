@@ -1,6 +1,8 @@
 # pokervis
 
-The beginnings of a poker odds visualization program in Clojurescript using Monte Carlo simulation. C2 is used for image visualization. It should work in Chrome, Firefox, IE 10, and Safari 6 or greater.
+The beginnings of a poker odds visualization program in Clojurescript using Monte Carlo simulation. Currently, it continually generates 7 card hands, takes the best 5 card hand, and plots a dynamically updated bar chart of each hand's frequency relative to the others.
+
+C2 is used for image visualization. It should work in Chrome, Firefox, IE 10, and Safari 6 or greater.
 
 # Demonstration
 
